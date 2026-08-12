@@ -18,6 +18,12 @@
 //   2.28 lakh complaints)
 // - Ministry of Finance reply in Rajya Sabha, March 24, 2026 (UPI fraud:
 //   12.64 lakh cases, Rs 981 crore in FY 2024-25)
+// - FBI IC3 2024 report: phishing/spoofing most reported crime type at
+//   193,407 complaints; extortion second at 86,415; tech support scam losses
+//   $1.46 billion (ic3.gov 2024 annual report, April 2025)
+// - Government of India reply in Parliament, July 21, 2026: CFCFRMS/1930
+//   reporting prevented losses of over Rs 11,158 crore since 2021 (as of
+//   July 6, 2026)
 // Do NOT edit a number without re-verifying it against the source. Judges in
 // fintech will know these figures.
 //
@@ -221,6 +227,42 @@ export const INTEL_STATS: IntelStat[] = [
     source: FTC_2024,
     categories: ['shopping', 'delivery', 'tickets', 'pets', 'subscription', 'prize'],
   },
+  {
+    id: 'us-phishing-volume',
+    region: 'us',
+    rarity: 'common',
+    stat: '193,407',
+    headline: 'Phishing complaints, the most reported internet crime of 2024',
+    detail:
+      'More than any other crime type in FBI data. The urgent link, the fake login page, the "verify now" text: volume plays because it works.',
+    source: IC3_2024,
+    categories: ['phishing', 'security', 'identity'],
+    kinds: ['email', 'sms', 'popup'],
+  },
+  {
+    id: 'us-tech-support',
+    region: 'us',
+    rarity: 'rare',
+    stat: '$1.46B',
+    headline: 'Lost to tech support scams reported to the FBI in 2024',
+    detail:
+      'The fake virus popup and the "refund department" call both end at the same place: remote access to your screen. Real companies never cold-call about a virus.',
+    source: IC3_2024,
+    categories: ['tech-support'],
+    kinds: ['popup', 'call'],
+  },
+  {
+    id: 'us-extortion',
+    region: 'us',
+    rarity: 'rare',
+    stat: '86,415',
+    headline: 'Extortion complaints made it 2024\u2019s second most reported crime',
+    detail:
+      'The "I have your video" email runs on shame. The password in the subject line came from an old data breach, not your camera. Do not pay, do report.',
+    source: IC3_2024,
+    categories: ['blackmail'],
+    kinds: ['email', 'dm'],
+  },
 
   // ---------- United States: field manual ----------
   {
@@ -280,6 +322,73 @@ export const INTEL_STATS: IntelStat[] = [
       'ReportFraud.ftc.gov and your bank\u2019s fraud line, same day. Wires and payment apps can sometimes be recalled if you move before the money does.',
     source: 'FTC guidance',
   },
+  {
+    id: 'us-delivery-rule',
+    region: 'us',
+    rarity: 'common',
+    stat: 'NO LINK',
+    headline: 'USPS never texts you a link about a stuck package',
+    detail:
+      'Neither does FedEx or UPS unless you signed up first. The "small redelivery fee" is not the play; the card number you type on that page is.',
+    source: 'US Postal Inspection Service guidance',
+    categories: ['delivery', 'toll'],
+    kinds: ['sms'],
+  },
+  {
+    id: 'us-shopping-rule',
+    region: 'us',
+    rarity: 'common',
+    stat: 'CARD ONLY',
+    headline: 'A store that steers you off credit cards is telling you something',
+    detail:
+      'Zelle, wire, crypto, gift cards: none can be disputed. Real stores take real cards precisely because charges can be reversed. Follow the payment rail.',
+    source: 'FTC consumer alerts',
+    categories: ['shopping', 'marketplace'],
+  },
+  {
+    id: 'us-tickets-rule',
+    region: 'us',
+    rarity: 'common',
+    stat: 'NOT A TICKET',
+    headline: 'A screenshot of a ticket is a picture, not a ticket',
+    detail:
+      'Anyone can screenshot a barcode, and one barcode can be "sold" to twenty buyers. Transfers inside the official ticketing app are the only proof that counts.',
+    source: 'FTC consumer alerts',
+    categories: ['tickets'],
+  },
+  {
+    id: 'us-pets-rule',
+    region: 'us',
+    rarity: 'common',
+    stat: 'NO VIDEO?',
+    headline: 'A puppy you cannot see on a live video call does not exist',
+    detail:
+      'Stolen photos, a too-low price, then the sequel asks: courier fees, a special crate, shipping insurance. The dog never arrives because there is no dog.',
+    source: 'FTC consumer alerts',
+    categories: ['pets'],
+  },
+  {
+    id: 'us-prize-rule',
+    region: 'us',
+    rarity: 'common',
+    stat: 'PAY? NO.',
+    headline: 'Real prizes never charge you fees or taxes upfront',
+    detail:
+      'If you have to pay to collect a prize, the "prize" is your payment. Taxes on real winnings go to the government afterward, never to the person notifying you.',
+    source: 'FTC consumer alerts',
+    categories: ['prize', 'money-games'],
+  },
+  {
+    id: 'us-subscription-rule',
+    region: 'us',
+    rarity: 'common',
+    stat: 'TRIAL TRAP',
+    headline: 'A free trial that needs your card has a clock on it',
+    detail:
+      'The product is the forgotten renewal. Before you type a card number into any trial, find the cancel page first. If you cannot find it, that is the answer.',
+    source: 'FTC consumer alerts',
+    categories: ['subscription'],
+  },
 
   // ---------- India ----------
   {
@@ -335,6 +444,16 @@ export const INTEL_STATS: IntelStat[] = [
     source: 'Ministry of Finance, Rajya Sabha reply, 2026',
     categories: ['upi', 'kyc'],
     kinds: ['payment'],
+  },
+  {
+    id: 'in-frozen',
+    region: 'in',
+    rarity: 'classified',
+    stat: '\u20B911,158 Cr',
+    headline: 'Saved from cyber criminals because someone reported in time',
+    detail:
+      'That is what fast reporting through 1930 and cybercrime.gov.in has frozen since 2021. Every case you learn to spot here is money that stays home.',
+    source: 'Government of India, Parliament reply, 2026',
   },
 
   // ---------- India: field manual ----------
@@ -443,6 +562,77 @@ export const INTEL_STATS: IntelStat[] = [
     source: 'I4C and RBI advisories',
     categories: ['job', 'banking', 'money-games'],
   },
+  {
+    id: 'in-qr-rule',
+    region: 'in',
+    rarity: 'common',
+    stat: 'QR = PAY',
+    headline: 'Scanning a QR code only ever SENDS money',
+    detail:
+      'There is no QR that puts money into your account. The "scan this to receive your payment" buyer is walking you through paying them.',
+    source: 'NPCI UPI safety guidance',
+    categories: ['upi', 'marketplace', 'shopping'],
+    kinds: ['payment', 'dm'],
+  },
+  {
+    id: 'in-apk-rule',
+    region: 'in',
+    rarity: 'common',
+    stat: '.APK',
+    headline: 'A bank update never arrives as a WhatsApp file',
+    detail:
+      'That "official" APK reads your SMS the moment you install it, and your OTPs with it. Banks ship apps through the Play Store and App Store only.',
+    source: 'I4C and bank advisories',
+    categories: ['banking', 'kyc', 'government'],
+    kinds: ['dm', 'sms'],
+  },
+  {
+    id: 'in-customer-care',
+    region: 'in',
+    rarity: 'common',
+    stat: 'PLANTED',
+    headline: 'Search-result "customer care" numbers are planted bait',
+    detail:
+      'Scammers buy ads and edit listings so their number outranks the real one. Take support numbers from the official app or the back of your card, never from search.',
+    source: 'RBI public advisories',
+    categories: ['tech-support', 'banking', 'delivery', 'shopping'],
+    kinds: ['call'],
+  },
+  {
+    id: 'in-electricity-rule',
+    region: 'in',
+    rarity: 'common',
+    stat: 'TONIGHT?',
+    headline: 'The "power cut tonight" text is a script, not a bill',
+    detail:
+      'Electricity boards send bill notices with account details, not personal mobile numbers to call urgently. The panic window before dinner is the whole trick.',
+    source: 'I4C public advisories',
+    categories: ['utility'],
+    kinds: ['sms'],
+  },
+  {
+    id: 'in-loan-app-rule',
+    region: 'in',
+    rarity: 'rare',
+    stat: 'CONTACTS',
+    headline: 'A loan app that wants your contact list is planning harassment',
+    detail:
+      'Unregistered instant-loan apps lend small, then extort big, shaming your family and colleagues from your own phone book. Check the RBI registered-lender list first.',
+    source: 'RBI advisories on digital lending',
+    categories: ['loan-app'],
+  },
+  {
+    id: 'in-advance-buyer',
+    region: 'in',
+    rarity: 'common',
+    stat: 'ADVANCE',
+    headline: 'The buyer who pays before seeing the item is the scam',
+    detail:
+      'The "army officer on transfer" who overpays sight unseen then sends a collect request or QR is running the reverse-payment trick. Real buyers negotiate, meet, then pay.',
+    source: 'I4C public advisories',
+    categories: ['marketplace'],
+    kinds: ['dm', 'payment'],
+  },
 ];
 
 /**
@@ -469,13 +659,20 @@ export function pickIntel(
   card: { category: Category; kind: CardKind },
   country: Country,
   usedIds: ReadonlySet<string>,
+  collectedIds: ReadonlySet<string> = new Set(),
   rand: () => number = Math.random,
 ): IntelStat | null {
   const fresh = INTEL_STATS.filter((s) => s.region === country && !usedIds.has(s.id));
-  const byCategory = fresh.filter((s) => s.categories?.includes(card.category));
-  const byKind = fresh.filter((s) => !s.categories?.includes(card.category) && s.kinds?.includes(card.kind));
-  const generic = fresh.filter((s) => !s.categories && !s.kinds);
-  const pool = byCategory.length ? byCategory : byKind.length ? byKind : generic.length ? generic : fresh;
-  if (!pool.length) return null;
-  return pool[Math.floor(rand() * pool.length)] ?? null;
+  // Two passes: first restrict to files the player has never archived on this
+  // device, so repeat runs keep surfacing NEW intel instead of re-dealing the
+  // same fact. Once the whole region is collected, fall back to the full pool.
+  const uncollected = fresh.filter((s) => !collectedIds.has(s.id));
+  for (const candidates of uncollected.length ? [uncollected, fresh] : [fresh]) {
+    const byCategory = candidates.filter((s) => s.categories?.includes(card.category));
+    const byKind = candidates.filter((s) => !s.categories?.includes(card.category) && s.kinds?.includes(card.kind));
+    const generic = candidates.filter((s) => !s.categories && !s.kinds);
+    const pool = byCategory.length ? byCategory : byKind.length ? byKind : generic.length ? generic : candidates;
+    if (pool.length) return pool[Math.floor(rand() * pool.length)] ?? null;
+  }
+  return null;
 }

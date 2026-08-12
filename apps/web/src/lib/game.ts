@@ -1,5 +1,5 @@
 // Fraud IQ: pure game engine (no UI). The UI layer consumes this as-is.
-// Rules are final: scoring, lives and timer changes must come with test updates.
+// Rules are final; do not change scoring/lives/timer without updating docs/plan.md.
 
 import { BOSS_CARDS, CARDS, RADAR_LEVELS, type GameCard, type Region } from '@/data/cards';
 

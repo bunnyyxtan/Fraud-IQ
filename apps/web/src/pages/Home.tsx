@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { createSession, createDailySession, dailyDateKey, saveDailyRecord, Country, loadCountry, saveCountry, GameMode, GameSummary, resolveRound, RoundResult, summarize, recordGame, loadStats, loadSeen, markSeen, Choice, Stats, LIVES, PlayerProfile, loadProfile, saveProfile, clearProfile, levelFromXp } from '@/lib/game';
+import { createSession, createDailySession, dailyDateKey, saveDailyRecord, Country, loadCountry, saveCountry, GameMode, GameSummary, resolveRound, RoundResult, summarize, recordGame, loadStats, loadSeen, markSeen, Choice, Stats, LIVES, PlayerProfile, loadProfile, saveProfile, clearProfile, levelFromXp, loadIntelCollected } from '@/lib/game';
 import { fetchMe, ApiError } from '@/lib/api';
 import { GameCard, CARD_IMAGE_URLS } from '@/data/cards';
 import { pickIntel, INTEL_STATS, IntelStat } from '@/data/intel';
@@ -195,7 +195,9 @@ export default function Home() {
       // matched to the card just faced and the player's region.
       if (INTEL_AFTER.has(current.currentIndex)) {
         const justPlayed = current.session[current.currentIndex];
-        const intel = pickIntel(justPlayed, country, usedIntelRef.current);
+        // Prefer files never archived on this device, so back-to-back runs
+        // keep dealing NEW intel instead of repeating the same fact.
+        const intel = pickIntel(justPlayed, country, usedIntelRef.current, loadIntelCollected());
         if (intel) {
           usedIntelRef.current.add(intel.id);
           return {

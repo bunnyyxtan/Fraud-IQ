@@ -41,6 +41,70 @@ const ChevronLeft = ({ color }: { color: string }) => (
   </svg>
 );
 
+/**
+ * Scrollable evidence body with a visible "there is more" affordance.
+ * Mobile browsers hide scrollbars, so long content used to look CUT at the
+ * frame edge. When the body can still scroll down, a bottom fade plus a tiny
+ * chevron marks the continuation; both vanish at the end of the content.
+ */
+function ScrollBody({
+  outerClassName = 'flex-1 min-h-0',
+  className = '',
+  fadeColor = '#FFFFFF',
+  children,
+}: {
+  outerClassName?: string;
+  className?: string;
+  fadeColor?: string;
+  children: React.ReactNode;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const innerRef = React.useRef<HTMLDivElement>(null);
+  const [more, setMore] = React.useState(false);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 8);
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    if (innerRef.current) ro.observe(innerRef.current);
+    return () => {
+      el.removeEventListener('scroll', update);
+      ro.disconnect();
+    };
+  }, []);
+
+  // rgba() keeps the fade in the body's own surface color
+  const toRgba = (hex: string, a: number) => {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  };
+
+  return (
+    <div className={`relative ${outerClassName}`}>
+      <div ref={ref} className={`h-full overflow-y-auto ${className}`}>
+        <div ref={innerRef} className="min-h-full flex flex-col">
+          {children}
+        </div>
+      </div>
+      {more && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 flex items-end justify-center pb-1.5"
+          style={{ background: `linear-gradient(to bottom, ${toRgba(fadeColor, 0)}, ${fadeColor} 82%)` }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const UserAvatar = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
@@ -68,15 +132,15 @@ function SmsCard({ card, showTells }: { card: GameCard, showTells: boolean }) {
         <div className="w-8" />
       </div>
       {/* SMS body */}
-      <div className="flex-1 bg-white px-4 py-5 flex flex-col overflow-y-auto min-h-0">
+      <ScrollBody outerClassName="flex-1 min-h-0 bg-white" className="px-4 py-5">
         <div className="text-center text-[11px] font-medium text-[#8E8E93] mb-4">now</div>
         <div className="flex">
           <div className="bg-[#E9E9EB] text-black text-[15px] leading-[1.35] rounded-[18px] rounded-tl-sm px-3.5 py-2.5 max-w-[88%] font-normal tracking-[-0.01em]">
             <HighlightedText text={card.body} tells={card.tells} showHighlights={showTells} />
           </div>
         </div>
-        <div className="h-6" />
-      </div>
+        <div className="h-6 shrink-0" />
+      </ScrollBody>
     </EvidenceFrame>
   );
 }
@@ -115,9 +179,11 @@ function EmailCard({ card, showTells }: { card: GameCard, showTells: boolean }) 
         </div>
       </div>
       {/* body */}
-      <div className="px-5 py-4 text-[15px] whitespace-pre-wrap text-[#1c1c1e] leading-relaxed overflow-y-auto flex-1 bg-white min-h-0">
-        <HighlightedText text={card.body} tells={card.tells} showHighlights={showTells} />
-      </div>
+      <ScrollBody outerClassName="flex-1 min-h-0 bg-white" className="px-5 py-4">
+        <div className="text-[15px] whitespace-pre-wrap text-[#1c1c1e] leading-relaxed">
+          <HighlightedText text={card.body} tells={card.tells} showHighlights={showTells} />
+        </div>
+      </ScrollBody>
     </EvidenceFrame>
   );
 }
@@ -138,34 +204,36 @@ function PaymentCard({ card, showTells }: { card: GameCard, showTells: boolean }
         <div className="font-semibold text-[16px] tracking-tight">{appName}</div>
         <div className="w-[22px]" />
       </div>
-      {/* amount receipt */}
-      <div className="px-6 pt-8 pb-6 text-center border-b border-[#EDEDED] shrink-0 bg-white">
-        <div className="w-14 h-14 rounded-full bg-[#EAF4FB] mx-auto mb-4 flex items-center justify-center">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3D95CE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
-        </div>
-        <div className="text-[12px] font-semibold text-[#8E8E93] mb-2 uppercase tracking-wide">
-          {isRequest ? 'Payment Request' : 'Payment Received'}
-        </div>
-        <div className="text-[44px] font-bold mb-3 tracking-tight text-black tabular-nums leading-none">{amountStr}</div>
-        <div className="text-[14px] text-[#636366]">
-          from <span className="font-semibold text-black"><HighlightedText text={card.sender} tells={card.tells} showHighlights={showTells} /></span>
-        </div>
-      </div>
-      {/* memo */}
-      <div className="px-5 py-5 flex-1 flex flex-col overflow-y-auto bg-[#FAFAFA] min-h-0">
-        <div className="bg-white p-4 rounded-2xl border border-[#EDEDED] mb-auto">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-[#8E8E93] mb-1.5">Note</div>
-          <div className="text-[15px] text-[#1c1c1e] leading-relaxed">
-            <HighlightedText text={card.body} tells={card.tells} showHighlights={showTells} />
+      {/* receipt + memo scroll as one page, so a short screen never buries
+          the note under a fixed receipt block */}
+      <ScrollBody outerClassName="flex-1 min-h-0 bg-[#FAFAFA]" fadeColor="#FAFAFA">
+        <div className="px-6 pt-6 pb-5 text-center border-b border-[#EDEDED] bg-white shrink-0">
+          <div className="w-14 h-14 rounded-full bg-[#EAF4FB] mx-auto mb-3 flex items-center justify-center">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3D95CE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+          </div>
+          <div className="text-[12px] font-semibold text-[#8E8E93] mb-2 uppercase tracking-wide">
+            {isRequest ? 'Payment Request' : 'Payment Received'}
+          </div>
+          <div className="text-[44px] font-bold mb-3 tracking-tight text-black tabular-nums leading-none">{amountStr}</div>
+          <div className="text-[14px] text-[#636366]">
+            from <span className="font-semibold text-black"><HighlightedText text={card.sender} tells={card.tells} showHighlights={showTells} /></span>
           </div>
         </div>
-        {!showTells && isRequest && (
-          <div className="flex gap-3 mt-5 shrink-0">
-            <div className="flex-1 py-3 rounded-full text-center bg-[#F0F0F2] text-[#3D95CE] font-semibold text-[15px]">Decline</div>
-            <div className="flex-1 py-3 rounded-full text-center bg-[#3D95CE] text-white font-semibold text-[15px]">Pay</div>
+        <div className="px-5 py-5 flex-1 flex flex-col">
+          <div className="bg-white p-4 rounded-2xl border border-[#EDEDED] mb-auto">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-[#8E8E93] mb-1.5">Note</div>
+            <div className="text-[15px] text-[#1c1c1e] leading-relaxed">
+              <HighlightedText text={card.body} tells={card.tells} showHighlights={showTells} />
+            </div>
           </div>
-        )}
-      </div>
+          {!showTells && isRequest && (
+            <div className="flex gap-3 mt-5 shrink-0">
+              <div className="flex-1 py-3 rounded-full text-center bg-[#F0F0F2] text-[#3D95CE] font-semibold text-[15px]">Decline</div>
+              <div className="flex-1 py-3 rounded-full text-center bg-[#3D95CE] text-white font-semibold text-[15px]">Pay</div>
+            </div>
+          )}
+        </div>
+      </ScrollBody>
     </EvidenceFrame>
   );
 }
@@ -188,14 +256,15 @@ function DmCard({ card, showTells }: { card: GameCard, showTells: boolean }) {
           <div className="text-[11px] text-[#8E8E93] leading-tight">{appName}</div>
         </div>
       </div>
-      {/* messages */}
-      <div className="flex-1 px-4 py-5 overflow-y-auto flex flex-col justify-end bg-white min-h-0">
-        <div className="flex">
+      {/* messages: mt-auto bottom-aligns short chats without the flex
+          justify-end + overflow trap that makes long content top-unreachable */}
+      <ScrollBody outerClassName="flex-1 min-h-0 bg-white" className="px-4 py-5">
+        <div className="flex mt-auto">
           <div className="bg-[#EFEFEF] text-black px-4 py-2.5 rounded-3xl rounded-bl-md max-w-[85%] text-[15px] leading-[1.4]">
             <HighlightedText text={card.body} tells={card.tells} showHighlights={showTells} />
           </div>
         </div>
-      </div>
+      </ScrollBody>
     </EvidenceFrame>
   );
 }
@@ -253,10 +322,12 @@ function AdCard({ card, showTells }: { card: GameCard, showTells: boolean }) {
       {/* promoted visual */}
       <AdVisual src={card.image} />
       {/* caption */}
-      <div className="px-4 py-3 text-[15px] leading-relaxed bg-white shrink-0 overflow-y-auto max-h-[40%] text-[#1c1c1e]">
-        <span className="font-semibold mr-2 text-black">{accountName}</span>
-        <HighlightedText text={card.body} tells={card.tells} showHighlights={showTells} />
-      </div>
+      <ScrollBody outerClassName="shrink-0 max-h-[40%] bg-white" className="px-4 py-3">
+        <div className="text-[15px] leading-relaxed text-[#1c1c1e]">
+          <span className="font-semibold mr-2 text-black">{accountName}</span>
+          <HighlightedText text={card.body} tells={card.tells} showHighlights={showTells} />
+        </div>
+      </ScrollBody>
     </EvidenceFrame>
   );
 }
@@ -280,16 +351,18 @@ function CallCard({ card, showTells }: { card: GameCard, showTells: boolean }) {
         </div>
       </div>
       {/* transcript */}
-      <div className="flex-1 px-5 py-4 overflow-y-auto bg-white min-h-0 flex flex-col">
+      <div className="flex-1 min-h-0 bg-white flex flex-col px-5 py-4">
         <div className="flex items-center gap-2 mb-3 shrink-0">
           <span className="w-2 h-2 rounded-full bg-[#FF3B30] animate-pulse" />
           <span className="text-[11px] font-semibold uppercase tracking-wide text-[#FF3B30]">Live Transcript</span>
         </div>
-        <div className="bg-[#F5F5F7] rounded-2xl p-4 text-[15px] italic text-[#1c1c1e] leading-relaxed">
-          <HighlightedText text={transcript} tells={card.tells} showHighlights={showTells} />
-        </div>
+        <ScrollBody outerClassName="flex-1 min-h-0">
+          <div className="bg-[#F5F5F7] rounded-2xl p-4 text-[15px] italic text-[#1c1c1e] leading-relaxed mb-auto">
+            <HighlightedText text={transcript} tells={card.tells} showHighlights={showTells} />
+          </div>
+        </ScrollBody>
         {!showTells && (
-          <div className="mt-auto pt-5 flex items-center justify-center gap-2 shrink-0 text-[#8E8E93]">
+          <div className="pt-4 flex items-center justify-center gap-2 shrink-0 text-[#8E8E93]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
             <span className="text-[11px] uppercase tracking-wide font-semibold">Caller on the line</span>
           </div>
@@ -319,10 +392,12 @@ function PopupCard({ card, showTells }: { card: GameCard, showTells: boolean }) 
           <span className="flex-1 h-2 rounded-full bg-[#E4E4EA]" />
         </div>
       </div>
-      {/* desktop area with toast popup */}
-      <div className="flex-1 relative min-h-0 flex flex-col justify-center items-center p-5 overflow-y-auto bg-[#F0F0F2]">
-        <div className="bg-white rounded-2xl w-full max-w-[360px] overflow-hidden border border-[#E0E0E5] shadow-lg">
-          <div className="px-4 pt-3 pb-2 flex items-center gap-2 text-[12px] text-[#636366] border-b border-[#EFEFEF]">
+      {/* desktop area with toast popup; the toast caps at the desktop height
+          and scrolls INSIDE itself, so its message can never be cut by the
+          frame edge */}
+      <div className="flex-1 relative min-h-0 flex flex-col justify-center items-center p-5 bg-[#F0F0F2]">
+        <div className="bg-white rounded-2xl w-full max-w-[360px] max-h-full overflow-hidden border border-[#E0E0E5] shadow-lg flex flex-col">
+          <div className="px-4 pt-3 pb-2 flex items-center gap-2 text-[12px] text-[#636366] border-b border-[#EFEFEF] shrink-0">
             <div className="w-5 h-5 rounded-full bg-[#FF3B30] text-white flex items-center justify-center text-[11px] font-semibold shrink-0">!</div>
             <span className="truncate font-medium">
               {isBrowserOwn ? (
@@ -333,7 +408,7 @@ function PopupCard({ card, showTells }: { card: GameCard, showTells: boolean }) 
             </span>
             <svg className="ml-auto shrink-0 text-[#8E8E93]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
           </div>
-          <div className="p-4">
+          <ScrollBody outerClassName="flex-1 min-h-0" className="p-4">
             {!isBrowserOwn && (
               <div className="text-[11px] text-[#8E8E93] mb-2 truncate">
                 from <HighlightedText text={card.sender} tells={card.tells} showHighlights={showTells} />
@@ -347,7 +422,7 @@ function PopupCard({ card, showTells }: { card: GameCard, showTells: boolean }) 
             <div className="text-[14px] text-[#48484A] leading-relaxed">
               <HighlightedText text={card.body} tells={card.tells} showHighlights={showTells} />
             </div>
-          </div>
+          </ScrollBody>
         </div>
       </div>
     </EvidenceFrame>
