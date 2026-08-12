@@ -188,7 +188,7 @@ export function ResultsScreen({
   const replayLabel = mode === 'daily' ? 'Play a classic run' : 'Play again';
 
   return (
-    <div className="flex justify-center w-full flex-1 overflow-y-auto" style={{ color: INK }}>
+    <div className="flex justify-center w-full flex-1 overflow-y-auto fiq-scroll-stable" style={{ color: INK }}>
       <main
         className="w-full max-w-[440px] relative flex flex-col px-6 pt-10 pb-10 gap-5"
         style={BODY}

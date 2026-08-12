@@ -187,6 +187,19 @@
     @apply border-border;
   }
 
+  /* The menu screens are different heights, so a desktop window scrollbar used
+     to appear on one and vanish on the next. Every centred element, including
+     the fixed play key, slid sideways by half a scrollbar on each switch.
+     Reserving the gutter permanently pins them all to the same axis. Phones
+     draw overlay scrollbars, where this is a no-op.
+     The reserved strip sits outside the area the app itself paints, so the page
+     canvas carries the same paper tone (PAPER in lib/ui.tsx) and the edge stays
+     seamless. */
+  html {
+    background-color: #faf4e8;
+    scrollbar-gutter: stable;
+  }
+
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-feature-settings: 'cv11', 'ss01';
@@ -202,6 +215,14 @@
   .fiq-ring:focus-visible {
     outline: 2px solid rgba(34, 27, 22, 0.85);
     outline-offset: 3px;
+  }
+
+  /* A full-width scroll container puts its scrollbar on the right edge only,
+     which pushes the centred column inside it half a scrollbar off the axis
+     the fixed nav sits on. Reserving the gutter on both edges keeps the column
+     centred whether the bar is drawn or not. */
+  .fiq-scroll-stable {
+    scrollbar-gutter: stable both-edges;
   }
 }
 

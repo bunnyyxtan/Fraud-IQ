@@ -232,7 +232,7 @@ export function ProfileScreen({
   const currentAvatar = avatarFor(profile, guestAvatar);
 
   return (
-    <div className="h-[100dvh] w-full overflow-y-auto" style={{ ...BODY, backgroundColor: PAPER, color: INK }}>
+    <div className="h-[100dvh] w-full overflow-y-auto fiq-scroll-stable" style={{ ...BODY, backgroundColor: PAPER, color: INK }}>
       <main className="max-w-[440px] mx-auto w-full px-6 pt-10 pb-36">
         {/* Header */}
         <div className="flex items-center justify-center mb-8">
