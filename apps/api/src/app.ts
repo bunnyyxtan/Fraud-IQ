@@ -43,31 +43,54 @@ const webDist = process.env["WEB_DIST"]
 const webIndex = path.join(webDist, "index.html");
 const servesWeb = fs.existsSync(webIndex);
 
+// Mounted before the static handler so a file in the web build can never shadow
+// an API route.
+app.use("/api", router);
+
+// /api belongs to the API, so an unmatched route there is a 404 rather than a
+// client-side route to hand back to the SPA. The check runs on the decoded path
+// so an encoded separator like /api%2Fthing cannot slip past it, and a path that
+// will not decode is treated as reserved: malformed input is not a real route
+// either, and 404 is the honest answer.
+function isApiPath(rawPath: string): boolean {
+  let decoded: string;
+
+  try {
+    decoded = decodeURIComponent(rawPath);
+  } catch {
+    return true;
+  }
+
+  return decoded === "/api" || decoded.startsWith("/api/");
+}
+
 if (servesWeb) {
-  // Asset filenames carry a content hash, so they can be cached hard. index.html
-  // is excluded here and served by the fallback below, which must revalidate or
-  // clients would pin themselves to a stale build.
   app.use(
     express.static(webDist, {
       index: false,
-      maxAge: "1y",
-      immutable: true,
+      setHeaders(res, filePath) {
+        // Asset filenames carry a content hash, so they can be cached forever.
+        // index.html is the one name that is stable across builds, so it has to
+        // revalidate or a client pins itself to a stale build. `index: false`
+        // alone does not cover this: it only stops directory-index resolution,
+        // and a direct GET /index.html still lands here.
+        res.setHeader(
+          "Cache-Control",
+          filePath === webIndex
+            ? "no-cache"
+            : "public, max-age=31536000, immutable",
+        );
+      },
     }),
   );
-}
 
-app.use("/api", router);
-
-if (servesWeb) {
   app.use((req, res, next) => {
     if (req.method !== "GET" && req.method !== "HEAD") {
       next();
       return;
     }
 
-    // /api is the API's own namespace: an unmatched route there is a 404, not a
-    // client-side route to hand back to the SPA.
-    if (req.path === "/api" || req.path.startsWith("/api/")) {
+    if (isApiPath(req.path)) {
       next();
       return;
     }
