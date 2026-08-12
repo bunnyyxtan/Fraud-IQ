@@ -202,6 +202,25 @@ The game is fully playable as a guest with no backend running. The API needs
 `DATABASE_URL` pointing at a Postgres instance (copy `.env.example` to `.env`);
 push the schema with `pnpm --filter @fraud-iq/db run push`.
 
+## Deploying
+
+One service serves the whole product. The API mounts `/api` and hands every
+other GET to the built SPA, so the game is at the domain root with no second
+service and no cross-origin API URL to configure.
+
+```bash
+pnpm install
+pnpm build            # typecheck, then build both apps
+pnpm db:push          # create the schema
+pnpm start            # serves the API and the game on $PORT
+```
+
+`railway.json` is committed, so a Railway service pointed at this repo needs no
+build configuration. Add a Postgres database to the project and set the service
+variable `DATABASE_URL` to `${{Postgres.DATABASE_URL}}`. Railway injects `PORT`
+itself, and the pre-deploy step pushes the schema before the new container takes
+traffic.
+
 ## Stack
 
 React, TypeScript, Vite, Tailwind, Framer Motion, wouter, TanStack Query on the front end. Express 5, Drizzle ORM, PostgreSQL and Zod on the back end. Vitest for tests. Node 24, pnpm workspaces.
