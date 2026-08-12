@@ -327,9 +327,9 @@ export const INTEL_STATS: IntelStat[] = [
     region: 'us',
     rarity: 'common',
     stat: 'NO LINK',
-    headline: 'USPS never texts you a link about a stuck package',
+    headline: 'Couriers only text links you signed up for, and never ask to pay in one',
     detail:
-      'Neither does FedEx or UPS unless you signed up first. The "small redelivery fee" is not the play; the card number you type on that page is.',
+      'USPS, FedEx and UPS text tracking updates you opted into. A surprise "small redelivery fee" link is the play; the card number you type on that page is the prize.',
     source: 'US Postal Inspection Service guidance',
     categories: ['delivery', 'toll'],
     kinds: ['sms'],
