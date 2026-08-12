@@ -1,0 +1,18 @@
+{
+  "name": "fraud-iq",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev:web": "pnpm --filter @fraud-iq/web run dev",
+    "dev:api": "PORT=3001 pnpm --filter @fraud-iq/api run dev",
+    "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "test": "pnpm -r --if-present run test",
+    "typecheck:libs": "tsc --build",
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./apps/**\" --if-present run typecheck"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6",
+    "typescript": "~5.9.3"
+  }
+}
