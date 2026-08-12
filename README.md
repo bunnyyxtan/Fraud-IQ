@@ -6,8 +6,7 @@ Built for Hackonomics 2027.
 
 | | |
 |---|---|
-| **Play** | _(published URL goes here)_ |
-| **Demo film** | _(video link goes here)_ |
+| **Play** | **[fraudiq-production.up.railway.app](https://fraudiq-production.up.railway.app)** |
 | **Source** | this repository |
 
 |  |  |  |
