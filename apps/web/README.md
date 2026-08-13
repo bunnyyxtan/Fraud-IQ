@@ -87,7 +87,7 @@ Categories span phishing, banking, UPI, KYC, digital arrest, delivery, toll, gov
 A React SPA with a thin Express API. The game itself is fully playable offline as a guest; the backend exists only for identity, score persistence and the leaderboard.
 
 ```
-apps/web/                       the game, a React + Vite SPA
+artifacts/hackonomics/          web app (this folder)
   src/
     pages/Home.tsx              run orchestration and screen routing
     components/game/
@@ -109,12 +109,10 @@ apps/web/                       the game, a React + Vite SPA
       ui.tsx                    design tokens
       sound.ts                  WebAudio feedback
 
-apps/api/
+artifacts/api-server/
   src/routes/fraudIq.ts         players, scores, leaderboard, anti-cheat
 
-packages/db/src/schema/fraudIq.ts   Drizzle schema
-packages/api-zod/                   generated request and response schemas
-packages/api-client/                generated typed client
+lib/db/src/schema/fraudIq.ts    Drizzle schema
 ```
 
 **Everything scoring-related lives in pure functions in `src/lib/game.ts`.** Screens render, they do not compute. That is what makes the logic testable without a browser.
@@ -185,8 +183,8 @@ Treated as a requirement, not a polish pass. A fraud trainer that excludes older
 - 25 in the API: anti-cheat rules, score submission validation, the ET date-key rollover, and leaderboard shaping
 
 ```bash
-pnpm --filter @fraud-iq/web run test
-pnpm --filter @fraud-iq/api run test
+pnpm --filter @workspace/hackonomics run test
+pnpm --filter @workspace/api-server run test
 pnpm run typecheck        # all packages
 ```
 
@@ -194,32 +192,11 @@ pnpm run typecheck        # all packages
 
 ```bash
 pnpm install
-pnpm dev:api          # Express API on :3001
-pnpm dev:web          # game on :5173
+pnpm --filter @workspace/api-server run dev     # API
+pnpm --filter @workspace/hackonomics run dev    # web app
 ```
 
-The game is fully playable as a guest with no backend running. The API needs
-`DATABASE_URL` pointing at a Postgres instance (copy `.env.example` to `.env`);
-push the schema with `pnpm --filter @fraud-iq/db run push`.
-
-## Deploying
-
-One service serves the whole product. The API mounts `/api` and hands every
-other GET to the built SPA, so the game is at the domain root with no second
-service and no cross-origin API URL to configure.
-
-```bash
-pnpm install
-pnpm build            # typecheck, then build both apps
-pnpm db:push          # create the schema
-pnpm start            # serves the API and the game on $PORT
-```
-
-`railway.json` is committed, so a Railway service pointed at this repo needs no
-build configuration. Add a Postgres database to the project and set the service
-variable `DATABASE_URL` to `${{Postgres.DATABASE_URL}}`. Railway injects `PORT`
-itself, and the pre-deploy step pushes the schema before the new container takes
-traffic.
+The web app needs no backend to play as a guest. The API needs `DATABASE_URL` pointing at a Postgres instance; push the schema with `pnpm --filter @workspace/db run push`.
 
 ## Stack
 
